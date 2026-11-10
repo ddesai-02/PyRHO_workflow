@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --account=def-shaferab
-#SBATCH --job-name=pytabl_red
+#SBATCH --job-name=pytable
 #SBATCH --cpus-per-task=12
 #SBATCH --mem=4G
 #SBATCH --time=2:59:00
