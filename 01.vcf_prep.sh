@@ -5,8 +5,7 @@
 #SBATCH --time=2:59:00
 #SBATCH --output=split_vcf_%j.out
  
-# Strip the VCF down to genotypes only and split it into one VCF per scaffold.
-# Input should already be filtered to biallelic SNPs.
+# Strip the VCF down to genotypes only and split it into one VCF per scaffold. Input should be filtered to biallelic SNPs.
 
 source config.sh
 module load bcftools
