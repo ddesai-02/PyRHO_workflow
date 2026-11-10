@@ -1,5 +1,4 @@
-# Shared settings for the pyrho pipeline — sourced by scripts 02–04 so the
-# table, hyperparameter search and optimize step always use the same values.
+# Shared settings for the pyrho pipeline.
 
 VCF=""    # Population VCF file
 SIZE=""   # Haploid sample size = 2 x number of diploid individuals in the VCF
