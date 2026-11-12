@@ -6,7 +6,12 @@ MU=""     # Mutation rate per site per generation
 MSMC=""   # MSMC output file giving the demographic history
  
 TABLE="table${SIZE}_MSMC_nohap"   # Lookup table written by 02, read by 03 and 04
- 
+
 # Chosen from the 03_hyperparam.sh output
 WINDOW=100
 BPEN=10
+
+# Chosen for 05_convert.sh to CM and window averages (Default 50kb)
+WINDOW="50000" # Window Size
+WINKB="50" # Window Size in kb
+EDGE_THR=""  # cM/Mb; 99th percentile of 1-Mb windows in the initial map
