@@ -1,52 +1,48 @@
 #!/usr/bin/env python3
 import sys
 
-# seperator of the output, change to 
+
+def usage():
+    sys.exit(f'Usage: {sys.argv[0]} <recombination file | -> <window size (bp)>')
+
 
 if len(sys.argv) != 3:
-    print(f'Usage: {sys.argv[0]} <recombination file> <window size>')
-    sys.exit(1)
-
+    usage()
 try:
     window_size = int(sys.argv[2])
 except ValueError:
-    print(f'Usage: {sys.argv[0]} <recombination file> <window size>')
-    sys.exit(1)
+    usage()
+if window_size <= 0:
+    usage()
 
-curr_window = []
-curr_chr = ''
+# chrom -> {window index: [sum of rate * bp, covered bp]}; dicts keep input order
+windows = {}
+last_end = {}
 
-window_start = 0
-
-with open(sys.argv[1], 'r') as in_file:
-    # go through the file
+in_file = sys.stdin if sys.argv[1] == '-' else open(sys.argv[1])
+with in_file:
     for line in in_file:
-        line = line.strip()
         data = line.split()
+        if not data:
+            continue
+        chrom, begin, end, rate = data[0], int(data[1]), int(data[2]), float(data[3])
+        chrom_windows = windows.setdefault(chrom, {})
+        last_end[chrom] = max(last_end.get(chrom, 0), end)
 
-        # get data from line
-        chr, begin, end, rate = data[0], int(data[1]), int(data[2]), float(data[3])
+        # Split the interval at window boundaries
+        pos = begin
+        while pos < end:
+            k = pos // window_size
+            stop = min(end, (k + 1) * window_size)
+            acc = chrom_windows.setdefault(k, [0.0, 0])
+            acc[0] += rate * (stop - pos)
+            acc[1] += stop - pos
+            pos = stop
 
-        if curr_chr != chr:
-            if curr_chr != '':
-                mean = sum([r * (e - b) for e, b, r in curr_window]) / sum([(e - b) for e, b, r in curr_window])
-                print('\t'.join([curr_chr, str(curr_window[0][0]), str(curr_window[-1][1]), str(mean)]))
-            curr_chr = chr
-            curr_window = [(0, end, rate)]
-            window_start = 0
-        
-        while end > window_start + window_size:
-            curr_window.append((begin, window_start + window_size, rate))
-            begin = window_start + window_size
-
-            mean = sum([r * (e - b) for e, b, r in curr_window]) / sum([(e - b) for e, b, r in curr_window])
-            print('\t'.join([curr_chr, str(curr_window[0][0]), str(curr_window[-1][1]), str(mean)]))
-
-            window_start += window_size
-            curr_window = []
-            
-        curr_window.append((begin, end, rate))
-
-
-mean = sum([r * (e - b) for e, b, r in curr_window]) / sum([(e - b) for e, b, r in curr_window])
-print('\t'.join([curr_chr, str(curr_window[0][0]), str(curr_window[-1][1]), str(mean)]))
+for chrom, chrom_windows in windows.items():
+    for k in sorted(chrom_windows):
+        rate_bp, covered = chrom_windows[k]
+        if covered > 0:
+            start = k * window_size
+            stop = min((k + 1) * window_size, last_end[chrom])
+            print('\t'.join([chrom, str(start), str(stop), str(rate_bp / covered)]))
