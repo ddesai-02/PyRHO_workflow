@@ -6,14 +6,14 @@
 #SBATCH --output=pymask_%j.out
 
 # Mask spikes and high-rate scaffold edges, then average into windows.
-# Needs the *.rmapCM files and edge_threshold.txt from 05_convert.sh.
+# Needs the *.rmapCM files and edge_threshold.txt from 05.convert.sh.
 
 module load python/3.11
 set -euo pipefail
 
 source config.sh
 
-EDGE_THR=$(cat edge_threshold.txt)   # cM/Mb, from 05_convert.sh
+EDGE_THR=$(cat edge_threshold.txt)   # cM/Mb, from 05.convert.sh
 
 for f in *.rmapCM; do
     rmap=${f%.rmapCM}
